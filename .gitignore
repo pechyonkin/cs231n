@@ -1,3 +1,5 @@
 .ipynb_checkpoints
 cifar-10-batches-py
 *.pyc
+*.swp
+.env/*
