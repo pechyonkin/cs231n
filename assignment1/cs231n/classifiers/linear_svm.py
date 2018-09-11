@@ -66,17 +66,40 @@ def svm_loss_vectorized(W, X, y, reg):
   """
   Structured SVM loss function, vectorized implementation.
 
-  Inputs and outputs are the same as svm_loss_naive.
+  Inputs:
+  - W: A numpy array of shape (D, C) containing weights.
+  - X: A numpy array of shape (N, D) containing a minibatch of data.
+  - y: A numpy array of shape (N,) containing training labels; y[i] = c means
+    that X[i] has label c, where 0 <= c < C.
+  - reg: (float) regularization strength
+
+  Returns a tuple of:
+  - loss as single float
+  - gradient with respect to weights W; an array of same shape as W
   """
-  loss = 0.0
-  dW = np.zeros(W.shape) # initialize the gradient as zero
+
+  num_train = X.shape[0] # N
+  train_range = np.arange(num_train)
+
+  # loss = 0.0
+  # dW = np.zeros(W.shape) # initialize the gradient as zero
 
   #############################################################################
   # TODO:                                                                     #
   # Implement a vectorized version of the structured SVM loss, storing the    #
   # result in loss.                                                           #
   #############################################################################
-  pass
+
+  scores = np.dot(X, W) #(N, C)
+  correct_scores = scores[np.arange(num_train), y].reshape((num_train,1))#(N,1)
+  margins = (scores + 1 - correct_scores)
+  margins[train_range, y] = 0 # zero out correct margins
+  margins = np.maximum(0, margins) # element-wise max(0, ...)
+
+  loss = np.sum(margins) / num_train
+
+  loss += reg * np.sum(W**2)
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -91,7 +114,15 @@ def svm_loss_vectorized(W, X, y, reg):
   # to reuse some of the intermediate values that you used to compute the     #
   # loss.                                                                     #
   #############################################################################
-  pass
+
+  # Before using this approach, a lot of derivation on paper to vectorize
+
+  mask = margins                                            # N x C
+  mask[mask > 0] = 1                                        # N x C
+  incorrect_margins = np.sum(mask, axis=1)                  # N
+  mask[train_range, y] = -1 * incorrect_margins
+  dW = np.dot(X.T, mask) / num_train + 2 * reg * W
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
