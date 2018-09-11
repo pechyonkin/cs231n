@@ -107,6 +107,11 @@ def grad_check_sparse(f, x, analytic_grad, num_checks=10, h=1e-5):
   """
   sample a few random elements and only return numerical
   in this dimensions.
+
+  f is a (loss) function that takes x as parameter
+  x is parameters array
+  analytic_grad is gradients of parameters at point x
+
   """
 
   for i in range(num_checks):
