@@ -42,17 +42,15 @@ def softmax_loss_naive(W, X, y, reg):
     # Calculating loss
     correct_class = y[n]
     logC = - np.max(scores[n])  # for numerical stability
-
     total_sum = np.sum(np.exp(scores[n] + logC))
     for c in range(num_class):
       upper_term = np.exp(scores[n,c] + logC)
+      # Gradient update
+      dW[:, c] += (upper_term / total_sum) * X[n]
       if c == correct_class:
         loss -= np.log((upper_term) / (total_sum))
-        # Gradient update
-        dW[:,c] += (upper_term / total_sum - 1) * X[n]
-      else:
-        # Gradient update
-        dW[:,c] += (upper_term / total_sum) * X[n]
+        # Gradient update: additional term for correct class
+        dW[:,c] -= X[n]
 
   # Average loss and regularization loss
   loss /= num_train
