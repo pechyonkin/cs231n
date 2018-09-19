@@ -67,6 +67,7 @@ class TwoLayerNet(object):
     W1, b1 = self.params['W1'], self.params['b1']
     W2, b2 = self.params['W2'], self.params['b2']
     N, D = X.shape
+    H, C = W2.shape
 
     # Compute the forward pass
     scores = None
@@ -75,7 +76,10 @@ class TwoLayerNet(object):
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
     #############################################################################
-    pass
+    L1 = np.maximum(np.dot(X, W1) + b1, 0)
+    assert L1.shape == (N, H)
+    scores = np.dot(L1, W2) + b2
+    assert scores.shape == (N, C)
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -92,7 +96,12 @@ class TwoLayerNet(object):
     # in the variable loss, which should be a scalar. Use the Softmax           #
     # classifier loss.                                                          #
     #############################################################################
-    pass
+    exps = np.exp(scores)
+    logits = exps / np.sum(exps, axis=1, keepdims=True)
+    assert logits.shape == (N, C)
+    data_loss = np.sum(-np.log(logits[np.arange(N), y])) / N
+    reg_loss = reg * (np.sum(W1**2) + np.sum(W2**2) + np.sum(b1**2) + np.sum(b2**2))
+    loss = data_loss + reg_loss
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -104,7 +113,16 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    pass
+
+    # Loss w.r.t. incoming probas
+    dLdP  = np.zeros((N, C)) # N x C
+    dLdP += 1 / np.sum(logits, axis=1, keepdims=True)
+    dLdP[np.arange(N), y] -= 1 / logits[np.arange(N), y]
+    dLdP /= N
+
+    # Probas w.r.t. incoming scores
+    
+
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
