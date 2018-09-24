@@ -6,3 +6,4 @@ cifar-10-batches-py
 *.swp
 .env/*
 .idea
+graphs/*
