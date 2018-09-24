@@ -98,7 +98,8 @@ class TwoLayerNet(object):
     # classifier loss.                                                          #
     #############################################################################
 
-    exps = np.exp(scores)
+    log_C = np.max(scores, axis=1).reshape(-1,1) # N x 1; for numerical stability
+    exps = np.exp(scores - log_C) # N x C
     logits = exps / np.sum(exps, axis=1, keepdims=True)
     assert logits.shape == (N, C)
     data_loss = np.sum(-np.log(logits[np.arange(N), y])) / N
@@ -241,7 +242,8 @@ class TwoLayerNet(object):
     ###########################################################################
     # TODO: Implement this function; it should be VERY simple!                #
     ###########################################################################
-    pass
+    unnormalized_scores = self.loss(X)
+    y_pred = np.argmax(unnormalized_scores, axis=1)
     ###########################################################################
     #                              END OF YOUR CODE                           #
     ###########################################################################
